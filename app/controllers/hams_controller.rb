@@ -1,10 +1,11 @@
 class HamsController < ApplicationController
+  before_action :authenticate_user!, only: [:new, :create]
   def new
     @ham = Ham.new
   end
 
   def create
-    @ham = Ham.create(ham_params)
+    @ham = current_user.hams.create(ham_params)
     if @ham.valid?
       redirect_to root_path
     else
