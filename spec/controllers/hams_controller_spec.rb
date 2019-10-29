@@ -16,11 +16,7 @@ RSpec.describe HamsController, type: :controller do
     end
 
     it "should successfully show the new form" do
-      user = User.create(
-        email:                 'fakeuser@gmail.com',
-        password:              'secretPassword',
-        password_confirmation: 'secretPassword'
-      )
+      user = FactoryBot.create(:user)
       sign_in user
       
       get :new
@@ -30,11 +26,7 @@ RSpec.describe HamsController, type: :controller do
 
   describe "hams#create action" do
     it "should successfully create a new ham in our database" do
-      user = User.create(
-        email:                 'fakeuser@gmail.com',
-        password:              'secretPassword',
-        password_confirmation: 'secretPassword'
-      )
+      user = FactoryBot.create(:user)
       sign_in user
 
       post :create, params: { ham: { message: 'Hello!' } }
@@ -47,11 +39,7 @@ RSpec.describe HamsController, type: :controller do
   end
 
   it "should properly deal with validation errors" do
-    user = User.create(
-        email:                 'fakeuser@gmail.com',
-        password:              'secretPassword',
-        password_confirmation: 'secretPassword'
-      )
+      user = FactoryBot.create(:user)
       sign_in user
 
     ham_count = Ham.count 
