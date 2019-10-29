@@ -5,7 +5,11 @@ class HamsController < ApplicationController
 
   def create
     @ham = Ham.create(ham_params)
-    redirect_to root_path
+    if @ham.valid?
+      redirect_to root_path
+    else
+      render :new, status: :unprocessable_entity
+    end
   end
 
   def index
