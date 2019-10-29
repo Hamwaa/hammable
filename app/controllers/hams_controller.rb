@@ -1,6 +1,13 @@
 class HamsController < ApplicationController
   before_action :authenticate_user!, only: [:new, :create]
   
+  def destroy
+    @ham = Ham.find_by_id(params[:id])
+    return render_not_found if @ham.blank?
+    @ham.destroy
+    redirect_to root_path
+  end
+
   def update
     @ham = Ham.find_by_id(params[:id])
     return render_not_found if @ham.blank?

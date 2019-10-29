@@ -4,7 +4,7 @@ RSpec.describe HamsController, type: :controller do
 
   describe "hams#destroy action" do
     it "should allow a user to destroy hams" do
-      ham = FacotyrBot.create(:gram)
+      ham = FactoryBot.create(:ham)
       delete :destroy, params: { id: ham.id }
       expect(response).to redirect_to root_path
       ham = Ham.find_by_id(ham.id)
