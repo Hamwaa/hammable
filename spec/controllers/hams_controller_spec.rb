@@ -1,6 +1,19 @@
 require 'rails_helper'
 
 RSpec.describe HamsController, type: :controller do
+  describe "hams#show action" do
+    it "should successfully show the page if the ham is found" do
+      ham = FactoryBot.create(:ham)
+      get :show, params: { id: ham.id }
+      expect(response).to have_http_status(:success)
+    end
+
+    it "should return a 404 error if the ham is not found" do
+      get :show, params: { id: 'TACOCAT' }
+      expect(response).to have_http_stuts(:not_found)
+    end
+  end
+
   describe "hams#index action" do
     it "should successfully show the page" do
       get :index
