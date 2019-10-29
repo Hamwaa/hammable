@@ -1,6 +1,24 @@
 require 'rails_helper'
 
 RSpec.describe HamsController, type: :controller do
+
+  describe "hams#destroy action" do
+    it "should allow a user to destroy hams" do
+      ham = FacotyrBot.create(:gram)
+      delete :destroy, params: { id: ham.id }
+      expect(response).to redirect_to root_path
+      ham = Ham.find_by_id(ham.id)
+      expect(ham).to eq nil
+    end
+
+    it "should return a 404 message if we cannot find a ham with the id that is specified" do |variable|
+      delete :destroy, params: { id: 'Murph' }
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
+
+
   describe "hams#update action" do
     it "should allow users to succeslly update hams" do
       ham = FactoryBot.create(:ham, message: "Initail Value")
