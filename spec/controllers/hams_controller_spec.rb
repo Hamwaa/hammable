@@ -3,8 +3,24 @@ require 'rails_helper'
 RSpec.describe HamsController, type: :controller do
 
   describe "hams#destroy action" do
+    it "shouldn't allow users who did not create teh ham to destroy it" do
+      ham = FactoryBot.create(:ham)
+      user = FactoryBot.create(:user)
+      sign_in user
+      delete :destroy, params: { id: ham.id }
+      expect(response).to have_http_status(:forbidden)  
+    end
+
+    it "shouldn't let unauthenticated users destroy a ham" do
+      ham = FactoryBot.create(:ham)
+      delete :destroy, params: { id: ham.id }
+      expect(response).to redirect_to new_user_session_path
+    end
+
+
     it "should allow a user to destroy hams" do
       ham = FactoryBot.create(:ham)
+      sign_in ham.user
       delete :destroy, params: { id: ham.id }
       expect(response).to redirect_to root_path
       ham = Ham.find_by_id(ham.id)
@@ -12,6 +28,8 @@ RSpec.describe HamsController, type: :controller do
     end
 
     it "should return a 404 message if we cannot find a ham with the id that is specified" do |variable|
+      user = FactoryBot.create(:user)
+      sign_in user
       delete :destroy, params: { id: 'Murph' }
       expect(response).to have_http_status(:not_found)
     end
@@ -20,8 +38,24 @@ RSpec.describe HamsController, type: :controller do
 
 
   describe "hams#update action" do
+    it "shouldn't let users who didn't create teh ham to update the ham" do
+      ham = FactoryBot.create(:ham)
+      user = FactoryBot.create(:user)
+      sign_in user
+      patch :update, params: { id: ham.id, ham: { message: 'Wahoo' } }
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "shouldn't let unauthenticated users update a ham" do
+      ham = FactoryBot.create(:ham)
+      patch :update, params: { id: ham.id, ham: { message: "Hello" } }
+      expect(response).to redirect_to new_user_session_path
+    end
+
+
     it "should allow users to succeslly update hams" do
       ham = FactoryBot.create(:ham, message: "Initail Value")
+      sign_in ham.user
       patch :update, params: { id: ham.id, ham: { message: 'Changed' } }
       expect(response).to redirect_to root_path
       ham.reload
@@ -29,6 +63,8 @@ RSpec.describe HamsController, type: :controller do
     end
 
     it "should have http 404 error if the ham cannot be found" do
+      user = FactoryBot.create(:user)
+      sign_in user
       patch :update, params: { id: "YOLOSWAG", ham: { message: 'Changed' } }
       expect(response).to have_http_status(:not_found)
       
@@ -36,6 +72,8 @@ RSpec.describe HamsController, type: :controller do
 
     it "should render the edit form with an http status of unprocessable_entity" do 
       ham = FactoryBot.create(:ham, message: "Initial Value")
+      sign_in ham.user
+
       patch :update, params: { id: ham.id, ham: { message: '' } }
       expect(response).to have_http_status(:unprocessable_entity)
       ham.reload
@@ -46,13 +84,30 @@ RSpec.describe HamsController, type: :controller do
 
 
   describe "hams#edit action" do
+    it "shouldn't let a user who did not create the ham edit the ham" do
+      ham = FactoryBot.create(:ham)
+      user = FactoryBot.create(:user)
+      sign_in user
+      get :edit, params: { id: ham.id }
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "shouldn't let unauthenticated users edit a ham" do
+      ham = FactoryBot.create(:ham)
+      get :edit, params: { id: ham.id }
+      expect(response).to redirect_to new_user_session_path
+    end
+
     it "should successfully show the edit form if the has is found" do
       ham = FactoryBot.create(:ham)
+      sign_in ham.user
       get :edit, params: { id: ham.id}
       expect(response).to have_http_status(:success)
     end
 
     it "should return a 404 error message if the ham is not found" do 
+      user = FactoryBot.create(:user)
+      sign_in user
       get :edit, params: { id: 'SWAG'}
       expect(response).to have_http_status(:not_found)
     end
@@ -100,7 +155,14 @@ RSpec.describe HamsController, type: :controller do
       user = FactoryBot.create(:user)
       sign_in user
 
-      post :create, params: { ham: { message: 'Hello!' } }
+      post :create, params: { 
+        ham: {
+          message: 'Hello!',
+          picture: fixture_file_upload("/picture.png", 'image/png')
+        } 
+      }
+
+
       expect(response).to redirect_to root_path
 
       ham = Ham.last

@@ -1,1 +1,8 @@
 <h1>Hams!</h1>
+
+<% @hams.each do |ham| %>
+<div>
+  <%= ham.message %>
+  <%= image_tag ham.picture.to_s %>
+</div>
+<% end %>
